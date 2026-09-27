@@ -52,6 +52,21 @@ export function mapAssets(assets) {
   return Object.fromEntries(Object.entries(downloads).filter(([, url]) => url));
 }
 
+// Shared by the build-time fetch (index.astro frontmatter) and the client-side
+// refresh (index.astro script) so both agree on what counts as "newer".
+export function isNewerVersion(candidate, current) {
+  if (typeof candidate !== "string" || !/^v\d+\.\d+\.\d+$/.test(candidate))
+    return false;
+  if (typeof current !== "string" || !/^v\d+\.\d+\.\d+$/.test(current))
+    return true;
+  const parse = (value) => value.slice(1).split(".").map(Number);
+  const [candidateMajor, candidateMinor, candidatePatch] = parse(candidate);
+  const [currentMajor, currentMinor, currentPatch] = parse(current);
+  if (candidateMajor !== currentMajor) return candidateMajor > currentMajor;
+  if (candidateMinor !== currentMinor) return candidateMinor > currentMinor;
+  return candidatePatch > currentPatch;
+}
+
 export async function getLatestRelease({ fetcher = fetch } = {}) {
   try {
     const response = await fetcher(RELEASE_API, {

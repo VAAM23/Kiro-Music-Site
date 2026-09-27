@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { getLatestRelease, mapAssets } from "./releases.mjs";
+import { getLatestRelease, isNewerVersion, mapAssets } from "./releases.mjs";
 
 const asset = (name, repo = "Kiro-Music-Site") => ({
   name,
@@ -104,4 +104,16 @@ test("fails closed if a public installer release does not exist", async () => {
     }),
     null,
   );
+});
+
+test("isNewerVersion compares release tags and fails closed on invalid input", () => {
+  assert.equal(isNewerVersion("v0.2.5", "v0.2.4"), true);
+  assert.equal(isNewerVersion("v0.2.4", "v0.2.5"), false);
+  assert.equal(isNewerVersion("v0.2.4", "v0.2.4"), false);
+  assert.equal(isNewerVersion("v1.0.0", "v0.9.9"), true);
+  assert.equal(isNewerVersion("v0.10.0", "v0.9.0"), true);
+  assert.equal(isNewerVersion("v1.2.3", ""), true);
+  assert.equal(isNewerVersion("v1.2.3", null), true);
+  assert.equal(isNewerVersion("not-a-version", "v0.2.4"), false);
+  assert.equal(isNewerVersion("", "v0.2.4"), false);
 });
