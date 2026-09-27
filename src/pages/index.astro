@@ -1,9 +1,12 @@
 ---
 import Localized from "../components/Localized.astro";
+import AppMockup from "../components/AppMockup.astro";
 import { getLatestRelease } from "../lib/releases.mjs";
 import "../styles/site.css";
 
-// Build-time data comes only from the public distribution repository.
+// Build-time data comes only from the public distribution repository. The
+// client script re-fetches the same endpoint on page load and upgrades this
+// markup in place if a newer release appears (see the script at the bottom).
 const release = await getLatestRelease();
 const macVariants = [
   {
@@ -142,45 +145,51 @@ const gallery = [
               id="download-area"
               class="download-area"
               data-downloads={JSON.stringify(release?.downloads || {})}
+              data-version={release?.version || ""}
             >
-              {firstPlatform ? (
-                <a
-                  id="main-download"
-                  class="primary-cta"
-                  href={release.downloads[firstPlatform.key]}
-                  data-platform={firstPlatform.key}
+              <a
+                id="main-download"
+                class="primary-cta"
+                href={
+                  firstPlatform ? release.downloads[firstPlatform.key] : "#"
+                }
+                data-platform={firstPlatform?.key || ""}
+                hidden={!firstPlatform}
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="21"
+                  height="21"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  aria-hidden="true"
                 >
-                  <svg
-                    viewBox="0 0 24 24"
-                    width="21"
-                    height="21"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                  <span data-download-label="en">
-                    Download for {firstPlatform.name}
-                  </span>
-                  <span data-download-label="es">
-                    Descargar para {firstPlatform.name}
-                  </span>
-                </a>
-              ) : (
-                <span class="primary-cta cta-unavailable" role="status">
-                  <Localized
-                    en="Downloads coming soon"
-                    es="Descargas muy pronto"
+                  <path
+                    d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
                   />
+                </svg>
+                <span data-download-label="en">
+                  Download for {firstPlatform?.name || ""}
                 </span>
-              )}
-              <p class="download-meta">
+                <span data-download-label="es">
+                  Descargar para {firstPlatform?.name || ""}
+                </span>
+              </a>
+              <span
+                id="main-download-empty"
+                class="primary-cta cta-unavailable"
+                role="status"
+                hidden={Boolean(firstPlatform)}
+              >
+                <Localized
+                  en="Downloads coming soon"
+                  es="Descargas muy pronto"
+                />
+              </span>
+              <p id="download-meta" class="download-meta">
                 {release ? (
                   <>
                     <Localized en="Latest release" es="Última versión" />{" "}
@@ -194,6 +203,7 @@ const gallery = [
                 )}
               </p>
               <div
+                id="platform-list"
                 class="platform-list"
                 aria-label="Available platforms"
                 data-aria-en="Available platforms"
@@ -225,44 +235,12 @@ const gallery = [
             data-aria-en="Illustrated preview of the Kiro Music player"
             data-aria-es="Vista ilustrativa del reproductor Kiro Music"
           >
+            <canvas class="hero-bg-canvas" aria-hidden="true"></canvas>
             <div class="wave-field" aria-hidden="true">
-              <svg
-                viewBox="0 0 760 460"
-                preserveAspectRatio="none"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M0 230 C70 230 85 190 108 190 S150 320 177 320 S216 78 247 78 S288 369 326 369 S360 118 403 118 S439 306 481 306 S518 178 559 178 S596 247 639 247 S694 230 760 230"
-                  stroke="url(#waveGradient)"
-                  stroke-width="3"
-                  stroke-linecap="round"
-                />
-                <path
-                  d="M0 230 C70 230 85 190 108 190 S150 320 177 320 S216 78 247 78 S288 369 326 369 S360 118 403 118 S439 306 481 306 S518 178 559 178 S596 247 639 247 S694 230 760 230"
-                  stroke="url(#waveGradient)"
-                  stroke-width="20"
-                  opacity=".12"
-                />
-                <defs>
-                  <linearGradient id="waveGradient">
-                    <stop stop-color="#4659b1" />
-                    <stop offset=".42" stop-color="#9f85ed" />
-                    <stop offset="1" stop-color="#58d7ef" />
-                  </linearGradient>
-                </defs>
-              </svg>
+              <canvas class="hero-wave-canvas"></canvas>
             </div>
             <div class="app-frame">
-              <img
-                src="/previews/player.svg"
-                width="460"
-                height="720"
-                alt="Illustrated Kiro Music interface showing the visualizer, playback controls and search"
-                data-alt-en="Illustrated Kiro Music interface showing the visualizer, playback controls and search"
-                data-alt-es="Interfaz ilustrativa de Kiro Music con visualizador, controles de reproducción y búsqueda"
-                fetchpriority="high"
-              />
+              <AppMockup />
             </div>
             <span class="orbit-label">
               <span class="orbit-icon" aria-hidden="true">
@@ -428,7 +406,7 @@ const gallery = [
               />
             </p>
           </div>
-          <div class="release-card">
+          <div id="release-card" class="release-card">
             {release ? (
               <>
                 <div class="release-top">
@@ -489,6 +467,10 @@ const gallery = [
       </footer>
     </div>
     <script>
+      import { getLatestRelease, isNewerVersion } from "../lib/releases.mjs";
+      import { initHeroWave } from "../lib/hero-wave.mjs";
+      import { initHeroBackground } from "../lib/hero-particles.mjs";
+
       const toggle = document.querySelector("#lang-switch");
       const setLanguage = (language) => {
         document.documentElement.lang = language;
@@ -529,10 +511,40 @@ const gallery = [
         }
       });
 
+      // --- Decorative canvas effects behind the hero mockup ---
+      initHeroWave(document.querySelector(".hero-wave-canvas"));
+      initHeroBackground(document.querySelector(".hero-bg-canvas"));
+
+      // --- Downloads: OS auto-detect + live release refresh ---
+      const PLATFORM_META = {
+        windows: { name: "Windows", format: ".exe / .msi" },
+        macosAppleSilicon: {
+          name: "macOS (Apple Silicon)",
+          format: ".dmg · aarch64",
+        },
+        macosIntel: { name: "macOS (Intel)", format: ".dmg · x64" },
+        macos: { name: "macOS", format: ".dmg" },
+        linux: { name: "Linux", format: ".AppImage / .deb / .rpm" },
+      };
+      // macOS auto-detect prefers the aarch64 build; browsers cannot reliably
+      // tell Apple Silicon from Intel, so both stay explicitly linked below.
+      const MAC_PRIORITY = ["macosAppleSilicon", "macos", "macosIntel"];
+      const PLATFORM_ORDER = [
+        "windows",
+        "macosAppleSilicon",
+        "macos",
+        "macosIntel",
+        "linux",
+      ];
+
       const area = document.querySelector("#download-area");
-      const cta = document.querySelector("#main-download");
-      if (area instanceof HTMLElement && cta instanceof HTMLAnchorElement) {
-        const downloads = JSON.parse(area.dataset.downloads || "{}");
+      const mainDownload = document.querySelector("#main-download");
+      const mainDownloadEmpty = document.querySelector("#main-download-empty");
+      const downloadMeta = document.querySelector("#download-meta");
+      const platformList = document.querySelector("#platform-list");
+      const releaseCard = document.querySelector("#release-card");
+
+      function detectPlatformKey(downloads) {
         const platform =
           navigator.userAgentData?.platform ||
           navigator.platform ||
@@ -545,36 +557,183 @@ const gallery = [
             : /linux|x11/i.test(platform)
               ? "linux"
               : null;
-        // Browser OS detection cannot reliably distinguish Apple Silicon from Intel.
-        // Apple Silicon is the default; both architectures remain explicitly linked below.
-        const macChoice = ["macos", "macosAppleSilicon", "macosIntel"].find(
-          (key) => downloads[key],
-        );
-        const chosen =
+        const macChoice = MAC_PRIORITY.find((key) => downloads[key]);
+        return (
           (detected === "macos"
             ? macChoice
             : downloads[detected] && detected) ||
-          ["windows", "macos", "macosAppleSilicon", "macosIntel", "linux"].find(
-            (key) => downloads[key],
+          PLATFORM_ORDER.find((key) => downloads[key])
+        );
+      }
+
+      // Used on initial load: only touches the pre-rendered main CTA and
+      // hides its duplicate card, matching what the server already rendered.
+      function applyChosenPlatform(downloads) {
+        const chosen = detectPlatformKey(downloads);
+        if (chosen && mainDownload instanceof HTMLAnchorElement) {
+          mainDownload.href = downloads[chosen];
+          mainDownload.dataset.platform = chosen;
+          const name = PLATFORM_META[chosen]?.name || chosen;
+          const english = mainDownload.querySelector(
+            '[data-download-label="en"]',
           );
-        if (chosen) {
-          const names = {
-            windows: "Windows",
-            macos: "macOS",
-            macosAppleSilicon: "macOS (Apple Silicon)",
-            macosIntel: "macOS (Intel)",
-            linux: "Linux",
-          };
-          cta.href = downloads[chosen];
-          cta.dataset.platform = chosen;
-          const english = cta.querySelector('[data-download-label="en"]');
-          const spanish = cta.querySelector('[data-download-label="es"]');
-          if (english) english.textContent = `Download for ${names[chosen]}`;
-          if (spanish) spanish.textContent = `Descargar para ${names[chosen]}`;
-          area
-            .querySelector(`[data-platform-item="${chosen}"]`)
-            ?.setAttribute("hidden", "");
+          const spanish = mainDownload.querySelector(
+            '[data-download-label="es"]',
+          );
+          if (english) english.textContent = `Download for ${name}`;
+          if (spanish) spanish.textContent = `Descargar para ${name}`;
+          mainDownload.hidden = false;
+          if (mainDownloadEmpty) mainDownloadEmpty.hidden = true;
+          area?.querySelectorAll("[data-platform-item]").forEach((item) => {
+            item.hidden = item.getAttribute("data-platform-item") === chosen;
+          });
         }
+        return chosen;
+      }
+
+      function createLocalized(en, es) {
+        const fragment = document.createDocumentFragment();
+        const enSpan = document.createElement("span");
+        enSpan.dataset.lang = "en";
+        enSpan.textContent = en;
+        const esSpan = document.createElement("span");
+        esSpan.dataset.lang = "es";
+        esSpan.textContent = es;
+        fragment.append(enSpan, esSpan);
+        return fragment;
+      }
+
+      // Used after a live refresh: rebuilds the whole platform list from the
+      // live download map, since the shape (which mac variants exist) may
+      // differ from what the build-time fallback rendered.
+      function renderPlatformList(downloads, chosenKey) {
+        if (!(platformList instanceof HTMLElement)) return;
+        const macKeys = ["macosAppleSilicon", "macosIntel", "macos"].filter(
+          (key) => downloads[key],
+        );
+        const keys = [
+          "windows",
+          ...(macKeys.length ? macKeys : ["macos"]),
+          "linux",
+        ];
+        platformList.textContent = "";
+        for (const key of keys) {
+          const meta = PLATFORM_META[key] || { name: key, format: "" };
+          const item = document.createElement("div");
+          item.className = "platform-item";
+          item.dataset.platformItem = key;
+          if (key === chosenKey) item.hidden = true;
+          const url = downloads[key];
+          if (url) {
+            const link = document.createElement("a");
+            link.href = url;
+            const nameSpan = document.createElement("span");
+            nameSpan.textContent = meta.name;
+            const formatSmall = document.createElement("small");
+            formatSmall.textContent = meta.format;
+            link.append(nameSpan, formatSmall);
+            item.append(link);
+          } else {
+            const pending = document.createElement("span");
+            pending.className = "platform-pending";
+            const nameSpan = document.createElement("span");
+            nameSpan.textContent = meta.name;
+            const small = document.createElement("small");
+            small.append(createLocalized("Coming soon", "Próximamente"));
+            pending.append(nameSpan, small);
+            item.append(pending);
+          }
+          platformList.append(item);
+        }
+      }
+
+      function renderMainCta(downloads) {
+        const chosen = detectPlatformKey(downloads);
+        const hasChosen = Boolean(chosen && downloads[chosen]);
+        if (mainDownload instanceof HTMLAnchorElement) {
+          mainDownload.hidden = !hasChosen;
+          if (hasChosen) {
+            mainDownload.href = downloads[chosen];
+            mainDownload.dataset.platform = chosen;
+            const name = PLATFORM_META[chosen]?.name || chosen;
+            const english = mainDownload.querySelector(
+              '[data-download-label="en"]',
+            );
+            const spanish = mainDownload.querySelector(
+              '[data-download-label="es"]',
+            );
+            if (english) english.textContent = `Download for ${name}`;
+            if (spanish) spanish.textContent = `Descargar para ${name}`;
+          }
+        }
+        if (mainDownloadEmpty) mainDownloadEmpty.hidden = hasChosen;
+        return chosen;
+      }
+
+      function renderDownloadMeta(release) {
+        if (!downloadMeta) return;
+        downloadMeta.textContent = "";
+        downloadMeta.append(
+          createLocalized("Latest release", "Última versión"),
+        );
+        downloadMeta.append(document.createTextNode(" "));
+        const strong = document.createElement("strong");
+        strong.textContent = release.version;
+        downloadMeta.append(strong);
+      }
+
+      function renderReleaseCard(release) {
+        if (!(releaseCard instanceof HTMLElement)) return;
+        releaseCard.textContent = "";
+        const top = document.createElement("div");
+        top.className = "release-top";
+        const tag = document.createElement("span");
+        tag.className = "release-tag";
+        tag.append(createLocalized("Latest release", "Última versión"));
+        const strong = document.createElement("strong");
+        strong.textContent = release.version;
+        top.append(tag, strong);
+        const notes = document.createElement("p");
+        notes.className = "release-notes";
+        notes.textContent =
+          release.notes || "See the full release notes for details.";
+        const link = document.createElement("a");
+        link.href = release.url;
+        link.className = "text-link";
+        link.append(
+          createLocalized("Read release notes", "Ver notas de la versión"),
+        );
+        const arrow = document.createElement("span");
+        arrow.setAttribute("aria-hidden", "true");
+        arrow.textContent = " ↗";
+        link.append(arrow);
+        releaseCard.append(top, notes, link);
+      }
+
+      if (area instanceof HTMLElement) {
+        const initialDownloads = JSON.parse(area.dataset.downloads || "{}");
+        applyChosenPlatform(initialDownloads);
+
+        // Refresh from the live GitHub API on load; only upgrade the page if
+        // a newer release is found or the build had none. Any failure (rate
+        // limit, offline, blocked request) falls back to the build-time
+        // markup silently.
+        getLatestRelease()
+          .then((release) => {
+            if (!release) return;
+            const buildVersion = area.dataset.version || "";
+            if (buildVersion && !isNewerVersion(release.version, buildVersion))
+              return;
+            area.dataset.version = release.version;
+            area.dataset.downloads = JSON.stringify(release.downloads);
+            const chosen = renderMainCta(release.downloads);
+            renderPlatformList(release.downloads, chosen);
+            renderDownloadMeta(release);
+            renderReleaseCard(release);
+          })
+          .catch(() => {
+            /* Fail silently; keep the existing build-time fallback. */
+          });
       }
     </script>
   </body>

@@ -1,0 +1,389 @@
+---
+// Illustrative, static approximation of the real Kiro Music window: it is
+// decorative only (aria-hidden on the root), so sample track data below is
+// never announced to assistive tech and does not need localization.
+const results = [
+  { title: "Midnight Drive", artist: "Nova Blue", duration: "3:12" },
+  { title: "Paper Skies", artist: "Lumen", duration: "2:48" },
+  { title: "Neon Tide", artist: "Aurelia", duration: "4:01" },
+];
+---
+
+<div class="kiro-mock" aria-hidden="true">
+  <div class="kiro-mock__titlebar">
+    <span class="kiro-mock__brand">
+      <span class="kiro-mock__dot"></span>
+      <span class="kiro-mock__brand-strong">Kiro</span>
+      <span class="kiro-mock__brand-muted">Music</span>
+    </span>
+    <span class="kiro-mock__winbtns">
+      <span class="kiro-mock__winbtn"></span>
+      <span class="kiro-mock__winbtn"></span>
+      <span class="kiro-mock__winbtn"></span>
+    </span>
+  </div>
+
+  <div class="kiro-mock__player">
+    <div class="kiro-mock__disc-wrap">
+      <svg
+        class="kiro-mock__wave"
+        viewBox="0 0 220 96"
+        preserveAspectRatio="none"
+      >
+        <path
+          class="kiro-mock__wave-path"
+          d="M0 48 C18 20 30 20 44 48 S72 76 88 48 S118 20 132 48 S162 76 176 48 S206 20 220 48"
+        ></path>
+      </svg>
+      <div class="kiro-mock__disc">
+        <span class="kiro-mock__disc-ring"></span>
+        <span class="kiro-mock__disc-center"></span>
+      </div>
+    </div>
+    <p class="kiro-mock__title">Golden Hour</p>
+    <p class="kiro-mock__artist">Kiro Radio</p>
+    <div class="kiro-mock__progress">
+      <span class="kiro-mock__time">0:06</span>
+      <span class="kiro-mock__bar">
+        <span class="kiro-mock__bar-fill">
+          <span class="kiro-mock__thumb"></span>
+        </span>
+      </span>
+      <span class="kiro-mock__time">3:05</span>
+    </div>
+    <div class="kiro-mock__controls">
+      <span class="kiro-mock__ctrl">⏮</span>
+      <span class="kiro-mock__play">▶</span>
+      <span class="kiro-mock__ctrl">⏭</span>
+      <span class="kiro-mock__volume">
+        <span class="kiro-mock__vol-icon">🔊</span>
+        <span class="kiro-mock__vol-track">
+          <span class="kiro-mock__vol-fill"></span>
+        </span>
+      </span>
+    </div>
+  </div>
+
+  <div class="kiro-mock__tabs">
+    <span class="kiro-mock__tab kiro-mock__tab--active">Search</span>
+    <span class="kiro-mock__tab">Playlists</span>
+    <span class="kiro-mock__tab">Favorites</span>
+    <span class="kiro-mock__tab">Lyrics</span>
+  </div>
+
+  <div class="kiro-mock__search">
+    <span class="kiro-mock__search-input">Song, artist...</span>
+    <span class="kiro-mock__search-btn">Search</span>
+  </div>
+
+  <ul class="kiro-mock__results">
+    {results.map((row) => (
+      <li class="kiro-mock__result">
+        <span class="kiro-mock__result-art" />
+        <span class="kiro-mock__result-text">
+          <span class="kiro-mock__result-title">{row.title}</span>
+          <span class="kiro-mock__result-artist">{row.artist}</span>
+        </span>
+        <span class="kiro-mock__result-duration">{row.duration}</span>
+        <span class="kiro-mock__result-icons">
+          <span>♡</span>
+          <span>+</span>
+        </span>
+      </li>
+    ))}
+  </ul>
+</div>
+
+<style>
+  .kiro-mock {
+    --accent: #7c5cff;
+    --accent-2: #33d1ff;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    width: 100%;
+    background: #0b0e1a;
+    padding: 12px 12px 14px;
+    font-family: "DM Sans", "Segoe UI", sans-serif;
+    color: #f2f6ff;
+  }
+  .kiro-mock__titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .kiro-mock__brand {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+  }
+  .kiro-mock__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-2);
+    box-shadow: 0 0 6px var(--accent-2);
+  }
+  .kiro-mock__brand-strong {
+    font-weight: 700;
+  }
+  .kiro-mock__brand-muted {
+    color: #8b96b8;
+  }
+  .kiro-mock__winbtns {
+    display: flex;
+    gap: 5px;
+  }
+  .kiro-mock__winbtn {
+    width: 12px;
+    height: 12px;
+    border-radius: 4px;
+    background: #1b2033;
+    border: 1px solid #2c3350;
+  }
+  .kiro-mock__player {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 4px 4px 2px;
+  }
+  .kiro-mock__disc-wrap {
+    position: relative;
+    width: 84px;
+    height: 84px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 3px;
+  }
+  .kiro-mock__wave {
+    position: absolute;
+    inset: -6px -34px;
+    width: calc(100% + 68px);
+    height: calc(100% + 12px);
+  }
+  .kiro-mock__wave-path {
+    fill: none;
+    stroke: var(--accent-2);
+    stroke-width: 2;
+    opacity: 0.45;
+  }
+  .kiro-mock__disc {
+    position: relative;
+    width: 66px;
+    height: 66px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #2a2f52, #0d0f1c 72%);
+    display: grid;
+    place-items: center;
+  }
+  .kiro-mock__disc-ring {
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    border: 1.5px solid var(--accent-2);
+    box-shadow: 0 0 10px var(--accent-2);
+    opacity: 0.85;
+  }
+  .kiro-mock__disc-center {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  }
+  .kiro-mock__title {
+    margin: 0;
+    font-weight: 700;
+    font-size: 12px;
+  }
+  .kiro-mock__artist {
+    margin: 0;
+    font-size: 10px;
+    color: #93a0c2;
+  }
+  .kiro-mock__progress {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    margin-top: 4px;
+  }
+  .kiro-mock__time {
+    font-size: 8px;
+    color: #8592b4;
+    flex: none;
+  }
+  .kiro-mock__bar {
+    flex: 1;
+    height: 3px;
+    border-radius: 3px;
+    background: #232a42;
+    position: relative;
+  }
+  .kiro-mock__bar-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 12%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  }
+  .kiro-mock__thumb {
+    position: absolute;
+    right: -3px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent-2);
+    box-shadow: 0 0 6px var(--accent-2);
+  }
+  .kiro-mock__controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 5px;
+  }
+  .kiro-mock__ctrl {
+    font-size: 12px;
+    color: #b7c1de;
+  }
+  .kiro-mock__play {
+    display: grid;
+    place-items: center;
+    width: 29px;
+    height: 29px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: 0 0 14px #33d1ff88;
+    font-size: 11px;
+    color: #0b0e1a;
+  }
+  .kiro-mock__volume {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 4px;
+  }
+  .kiro-mock__vol-icon {
+    font-size: 9px;
+  }
+  .kiro-mock__vol-track {
+    width: 24px;
+    height: 3px;
+    border-radius: 3px;
+    background: #232a42;
+    position: relative;
+  }
+  .kiro-mock__vol-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 60%;
+    border-radius: 3px;
+    background: var(--accent-2);
+  }
+  .kiro-mock__tabs {
+    display: flex;
+    gap: 4px;
+    padding: 0 2px;
+  }
+  .kiro-mock__tab {
+    flex: 1;
+    text-align: center;
+    font-size: 8px;
+    font-weight: 700;
+    padding: 5px 2px;
+    border-radius: 100px;
+    background: #141a2c;
+    color: #8592b4;
+    white-space: nowrap;
+  }
+  .kiro-mock__tab--active {
+    background: #232c48;
+    color: #f2f6ff;
+  }
+  .kiro-mock__search {
+    display: flex;
+    gap: 5px;
+    padding: 0 2px;
+  }
+  .kiro-mock__search-input {
+    flex: 1;
+    min-width: 0;
+    font-size: 8px;
+    color: #6c7796;
+    background: #141a2c;
+    border: 1px solid #232c48;
+    border-radius: 8px;
+    padding: 6px 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .kiro-mock__search-btn {
+    flex: none;
+    font-size: 8px;
+    font-weight: 700;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #0b0e1a;
+    white-space: nowrap;
+  }
+  .kiro-mock__results {
+    list-style: none;
+    margin: 0;
+    padding: 0 2px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .kiro-mock__result {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px;
+    border-radius: 8px;
+    background: #10152459;
+  }
+  .kiro-mock__result-art {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: linear-gradient(145deg, #2e3a63, #171d33);
+  }
+  .kiro-mock__result-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .kiro-mock__result-title {
+    font-size: 8.5px;
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .kiro-mock__result-artist {
+    font-size: 7.5px;
+    color: #8592b4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .kiro-mock__result-duration {
+    font-size: 7.5px;
+    color: #6c7796;
+    flex: none;
+  }
+  .kiro-mock__result-icons {
+    display: flex;
+    gap: 4px;
+    font-size: 8px;
+    color: #6c7796;
+    flex: none;
+  }
+</style>
