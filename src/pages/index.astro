@@ -1,0 +1,581 @@
+---
+import Localized from "../components/Localized.astro";
+import { getLatestRelease } from "../lib/releases.mjs";
+import "../styles/site.css";
+
+// Build-time data comes only from the public distribution repository.
+const release = await getLatestRelease();
+const macVariants = [
+  {
+    key: "macosAppleSilicon",
+    name: "macOS (Apple Silicon)",
+    format: ".dmg · aarch64",
+  },
+  { key: "macosIntel", name: "macOS (Intel)", format: ".dmg · x64" },
+  { key: "macos", name: "macOS", format: ".dmg" },
+].filter(({ key }) => release?.downloads[key]);
+const platforms = [
+  { key: "windows", name: "Windows", format: ".exe / .msi" },
+  ...(macVariants.length
+    ? macVariants
+    : [{ key: "macos", name: "macOS", format: ".dmg" }]),
+  { key: "linux", name: "Linux", format: ".AppImage / .deb / .rpm" },
+];
+const firstPlatform = platforms.find(({ key }) => release?.downloads[key]);
+const gallery = [
+  {
+    src: "/previews/player.svg",
+    en: "Find a track and press play",
+    es: "Busca una canción y dale play",
+    alt: "Illustrated preview of the player and search screen",
+    altEs: "Vista ilustrativa del reproductor y pantalla de búsqueda",
+  },
+  {
+    src: "/previews/lyrics.svg",
+    en: "Stay with every line",
+    es: "Sigue cada verso",
+    alt: "Illustrated preview of synchronized lyrics",
+    altEs: "Vista ilustrativa de las letras sincronizadas",
+  },
+  {
+    src: "/previews/playlists.svg",
+    en: "Keep your favorites close",
+    es: "Ten tus favoritos a mano",
+    alt: "Illustrated preview of the playlists screen",
+    altEs: "Vista ilustrativa de la pantalla de playlists",
+  },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0a1020" />
+    <meta
+      name="description"
+      content="Kiro Music is a lightweight desktop player for YouTube audio, synced lyrics and playlists. Find your next favorite track."
+    />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link
+      rel="preload"
+      href="/fonts/outfit-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <title>Kiro Music — A little more room for music</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">
+      <Localized en="Skip to content" es="Ir al contenido" />
+    </a>
+    <div class="site-wrap">
+      <header
+        class="site-header"
+        aria-label="Site navigation"
+        data-aria-en="Site navigation"
+        data-aria-es="Navegación del sitio"
+      >
+        <a
+          class="brand"
+          href="#top"
+          aria-label="Kiro Music home"
+          data-aria-en="Kiro Music home"
+          data-aria-es="Inicio de Kiro Music"
+        >
+          <img src="/kiro-logo.png" alt="" width="46" height="46" />
+          <span>
+            Kiro <span class="brand-light">Music</span>
+          </span>
+        </a>
+        <nav
+          aria-label="Sections"
+          data-aria-en="Sections"
+          data-aria-es="Secciones"
+        >
+          <a href="#features">
+            <Localized en="Features" es="Funciones" />
+          </a>
+          <a href="#gallery">
+            <Localized en="Preview" es="Vista previa" />
+          </a>
+          <a href="#updates">
+            <Localized en="Updates" es="Novedades" />
+          </a>
+        </nav>
+        <button
+          class="lang-switch"
+          id="lang-switch"
+          type="button"
+          aria-label="Switch to Spanish"
+          aria-pressed="false"
+        >
+          <span aria-hidden="true">EN / ES</span>
+        </button>
+      </header>
+
+      <main id="main">
+        <section id="top" class="hero" aria-labelledby="hero-title">
+          <div class="hero-copy">
+            <p class="hero-kicker">
+              <span class="pulse-dot" aria-hidden="true"></span>
+              <Localized
+                en="Your music, your little corner"
+                es="Tu música, tu propio rincón"
+              />
+            </p>
+            <h1 id="hero-title">
+              <Localized
+                en="Make room for the music."
+                es="Dale espacio a la música."
+              />
+            </h1>
+            <p class="hero-description">
+              <Localized
+                en="Search, play and get lost in the moment. Kiro brings YouTube audio, live lyrics and the songs you love together in one small desktop player."
+                es="Busca, reproduce y disfruta el momento. Kiro reúne audio de YouTube, letras sincronizadas y tus canciones favoritas en un pequeño reproductor de escritorio."
+              />
+            </p>
+            <div
+              id="download-area"
+              class="download-area"
+              data-downloads={JSON.stringify(release?.downloads || {})}
+            >
+              {firstPlatform ? (
+                <a
+                  id="main-download"
+                  class="primary-cta"
+                  href={release.downloads[firstPlatform.key]}
+                  data-platform={firstPlatform.key}
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    width="21"
+                    height="21"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                  <span data-download-label="en">
+                    Download for {firstPlatform.name}
+                  </span>
+                  <span data-download-label="es">
+                    Descargar para {firstPlatform.name}
+                  </span>
+                </a>
+              ) : (
+                <span class="primary-cta cta-unavailable" role="status">
+                  <Localized
+                    en="Downloads coming soon"
+                    es="Descargas muy pronto"
+                  />
+                </span>
+              )}
+              <p class="download-meta">
+                {release ? (
+                  <>
+                    <Localized en="Latest release" es="Última versión" />{" "}
+                    <strong>{release.version}</strong>
+                  </>
+                ) : (
+                  <Localized
+                    en="Public downloads are being prepared. Check back soon."
+                    es="Estamos preparando las descargas públicas. Vuelve pronto."
+                  />
+                )}
+              </p>
+              <div
+                class="platform-list"
+                aria-label="Available platforms"
+                data-aria-en="Available platforms"
+                data-aria-es="Plataformas disponibles"
+              >
+                {platforms.map((platform) => (
+                  <div class="platform-item" data-platform-item={platform.key}>
+                    {release?.downloads[platform.key] ? (
+                      <a href={release.downloads[platform.key]}>
+                        <span>{platform.name}</span>
+                        <small>{platform.format}</small>
+                      </a>
+                    ) : (
+                      <span class="platform-pending">
+                        <span>{platform.name}</span>
+                        <small>
+                          <Localized en="Coming soon" es="Próximamente" />
+                        </small>
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div
+            class="hero-art"
+            aria-label="Illustrated preview of the Kiro Music player"
+            data-aria-en="Illustrated preview of the Kiro Music player"
+            data-aria-es="Vista ilustrativa del reproductor Kiro Music"
+          >
+            <div class="wave-field" aria-hidden="true">
+              <svg
+                viewBox="0 0 760 460"
+                preserveAspectRatio="none"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M0 230 C70 230 85 190 108 190 S150 320 177 320 S216 78 247 78 S288 369 326 369 S360 118 403 118 S439 306 481 306 S518 178 559 178 S596 247 639 247 S694 230 760 230"
+                  stroke="url(#waveGradient)"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M0 230 C70 230 85 190 108 190 S150 320 177 320 S216 78 247 78 S288 369 326 369 S360 118 403 118 S439 306 481 306 S518 178 559 178 S596 247 639 247 S694 230 760 230"
+                  stroke="url(#waveGradient)"
+                  stroke-width="20"
+                  opacity=".12"
+                />
+                <defs>
+                  <linearGradient id="waveGradient">
+                    <stop stop-color="#4659b1" />
+                    <stop offset=".42" stop-color="#9f85ed" />
+                    <stop offset="1" stop-color="#58d7ef" />
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div class="app-frame">
+              <img
+                src="/previews/player.svg"
+                width="460"
+                height="720"
+                alt="Illustrated Kiro Music interface showing the visualizer, playback controls and search"
+                data-alt-en="Illustrated Kiro Music interface showing the visualizer, playback controls and search"
+                data-alt-es="Interfaz ilustrativa de Kiro Music con visualizador, controles de reproducción y búsqueda"
+                fetchpriority="high"
+              />
+            </div>
+            <span class="orbit-label">
+              <span class="orbit-icon" aria-hidden="true">
+                ♫
+              </span>
+              <Localized en="Find your sound" es="Encuentra tu ritmo" />
+            </span>
+          </div>
+        </section>
+
+        <section
+          id="features"
+          class="content-section features"
+          aria-labelledby="features-title"
+        >
+          <div class="section-heading">
+            <p class="section-index">
+              01 / <Localized en="Listen" es="Escucha" />
+            </p>
+            <h2 id="features-title">
+              <Localized
+                en="Everything in its right place."
+                es="Todo en su lugar."
+              />
+            </h2>
+            <p>
+              <Localized
+                en="The essentials, without the extra noise."
+                es="Lo esencial, sin ruido de más."
+              />
+            </p>
+          </div>
+          <div class="feature-grid">
+            <article class="feature-card feature-search">
+              <div class="feature-mark" aria-hidden="true">
+                ⌕
+              </div>
+              <h3>
+                <Localized en="Search & play" es="Busca y reproduce" />
+              </h3>
+              <p>
+                <Localized
+                  en="Find a song on YouTube and go straight to the good part."
+                  es="Encuentra una canción en YouTube y empieza a escucharla."
+                />
+              </p>
+            </article>
+            <article class="feature-card feature-lyrics">
+              <div class="feature-mark" aria-hidden="true">
+                ≋
+              </div>
+              <h3>
+                <Localized en="Lyrics in time" es="Letras a tiempo" />
+              </h3>
+              <p>
+                <Localized
+                  en="Follow along, line by line. Translation is there when you want it."
+                  es="Sigue cada verso. Activa la traducción cuando la necesites."
+                />
+              </p>
+            </article>
+            <article class="feature-card feature-library">
+              <div class="feature-mark" aria-hidden="true">
+                ♡
+              </div>
+              <h3>
+                <Localized en="Keep the good ones" es="Guarda tus favoritas" />
+              </h3>
+              <p>
+                <Localized
+                  en="Save favorites and make playlists for every kind of day."
+                  es="Guarda favoritas y crea playlists para cada momento."
+                />
+              </p>
+            </article>
+            <article class="feature-card feature-updates">
+              <div class="feature-mark" aria-hidden="true">
+                ↗
+              </div>
+              <h3>
+                <Localized en="Stay in tune" es="Siempre al día" />
+              </h3>
+              <p>
+                <Localized
+                  en="Get notified when a new version is ready. Updates need a public signed release feed."
+                  es="Recibe un aviso cuando haya una nueva versión. Las actualizaciones requieren una fuente pública y firmada."
+                />
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section
+          id="gallery"
+          class="content-section gallery"
+          aria-labelledby="gallery-title"
+        >
+          <div class="section-heading">
+            <p class="section-index">
+              02 / <Localized en="Explore" es="Explora" />
+            </p>
+            <h2 id="gallery-title">
+              <Localized
+                en="Small window. Big feelings."
+                es="Ventana pequeña. Grandes momentos."
+              />
+            </h2>
+            <p>
+              <Localized
+                en="A closer look at the player."
+                es="Un vistazo de cerca al reproductor."
+              />
+            </p>
+          </div>
+          <div class="gallery-grid">
+            {gallery.map((image) => (
+              <figure>
+                <div class="gallery-image">
+                  <img
+                    src={image.src}
+                    alt={image.alt}
+                    data-alt-en={image.alt}
+                    data-alt-es={image.altEs}
+                    width="460"
+                    height="720"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+                <figcaption>
+                  <Localized en={image.en} es={image.es} />
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+          <p class="preview-note">
+            <Localized
+              en="Illustrative interface previews based on the app. Actual screenshots will be added before launch."
+              es="Vistas ilustrativas basadas en la app. Añadiremos capturas reales antes del lanzamiento."
+            />
+          </p>
+        </section>
+
+        <section
+          id="updates"
+          class="content-section updates"
+          aria-labelledby="updates-title"
+        >
+          <div class="updates-copy">
+            <p class="section-index">
+              03 / <Localized en="What's new" es="Novedades" />
+            </p>
+            <h2 id="updates-title">
+              <Localized
+                en="Good things keep playing."
+                es="La música sigue sonando."
+              />
+            </h2>
+            <p>
+              <Localized
+                en="New releases, little improvements, and one more reason to hit play."
+                es="Nuevas versiones, pequeños cambios y otra razón para darle play."
+              />
+            </p>
+          </div>
+          <div class="release-card">
+            {release ? (
+              <>
+                <div class="release-top">
+                  <span class="release-tag">
+                    <Localized en="Latest release" es="Última versión" />
+                  </span>
+                  <strong>{release.version}</strong>
+                </div>
+                <p class="release-notes">
+                  {release.notes || "See the full release notes for details."}
+                </p>
+                <a href={release.url} class="text-link">
+                  <Localized
+                    en="Read release notes"
+                    es="Ver notas de la versión"
+                  />
+                  <span aria-hidden="true"> ↗</span>
+                </a>
+              </>
+            ) : (
+              <>
+                <div class="release-top">
+                  <span class="release-tag">
+                    <Localized en="In the works" es="En preparación" />
+                  </span>
+                  <span class="status-light" aria-hidden="true"></span>
+                </div>
+                <p>
+                  <Localized
+                    en="Our public download page is on the way. We'll show the latest version and what's changed right here once it's ready."
+                    es="La página de descargas públicas viene en camino. Aquí verás la última versión y sus novedades cuando esté lista."
+                  />
+                </p>
+              </>
+            )}
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <div class="footer-brand">
+          <img src="/kiro-logo.png" alt="" width="38" height="38" />
+          <span>Kiro Music</span>
+        </div>
+        <p>
+          <Localized
+            en="Made for the songs you come back to."
+            es="Hecho para las canciones a las que siempre vuelves."
+          />
+        </p>
+        <a
+          href="https://github.com/VAAM23/Kiro-Music-Site/issues/new"
+          class="text-link"
+        >
+          <Localized en="Share feedback" es="Dejar comentarios" />
+          <span aria-hidden="true"> ↗</span>
+        </a>
+      </footer>
+    </div>
+    <script>
+      const toggle = document.querySelector("#lang-switch");
+      const setLanguage = (language) => {
+        document.documentElement.lang = language;
+        toggle?.setAttribute("aria-pressed", String(language === "es"));
+        toggle?.setAttribute(
+          "aria-label",
+          language === "es" ? "Switch to English" : "Switch to Spanish",
+        );
+        document
+          .querySelectorAll("[data-alt-es]")
+          .forEach((image) =>
+            image.setAttribute(
+              "alt",
+              image.getAttribute(`data-alt-${language}`) || "",
+            ),
+          );
+        document
+          .querySelectorAll("[data-aria-es]")
+          .forEach((element) =>
+            element.setAttribute(
+              "aria-label",
+              element.getAttribute(`data-aria-${language}`) || "",
+            ),
+          );
+      };
+      try {
+        if (localStorage.getItem("kiro-lang") === "es") setLanguage("es");
+      } catch {
+        /* Private browsing */
+      }
+      toggle?.addEventListener("click", () => {
+        const next = document.documentElement.lang === "es" ? "en" : "es";
+        setLanguage(next);
+        try {
+          localStorage.setItem("kiro-lang", next);
+        } catch {
+          /* Private browsing */
+        }
+      });
+
+      const area = document.querySelector("#download-area");
+      const cta = document.querySelector("#main-download");
+      if (area instanceof HTMLElement && cta instanceof HTMLAnchorElement) {
+        const downloads = JSON.parse(area.dataset.downloads || "{}");
+        const platform =
+          navigator.userAgentData?.platform ||
+          navigator.platform ||
+          navigator.userAgent ||
+          "";
+        const detected = /win/i.test(platform)
+          ? "windows"
+          : /mac/i.test(platform)
+            ? "macos"
+            : /linux|x11/i.test(platform)
+              ? "linux"
+              : null;
+        // Browser OS detection cannot reliably distinguish Apple Silicon from Intel.
+        // Apple Silicon is the default; both architectures remain explicitly linked below.
+        const macChoice = ["macos", "macosAppleSilicon", "macosIntel"].find(
+          (key) => downloads[key],
+        );
+        const chosen =
+          (detected === "macos"
+            ? macChoice
+            : downloads[detected] && detected) ||
+          ["windows", "macos", "macosAppleSilicon", "macosIntel", "linux"].find(
+            (key) => downloads[key],
+          );
+        if (chosen) {
+          const names = {
+            windows: "Windows",
+            macos: "macOS",
+            macosAppleSilicon: "macOS (Apple Silicon)",
+            macosIntel: "macOS (Intel)",
+            linux: "Linux",
+          };
+          cta.href = downloads[chosen];
+          cta.dataset.platform = chosen;
+          const english = cta.querySelector('[data-download-label="en"]');
+          const spanish = cta.querySelector('[data-download-label="es"]');
+          if (english) english.textContent = `Download for ${names[chosen]}`;
+          if (spanish) spanish.textContent = `Descargar para ${names[chosen]}`;
+          area
+            .querySelector(`[data-platform-item="${chosen}"]`)
+            ?.setAttribute("hidden", "");
+        }
+      }
+    </script>
+  </body>
+</html>

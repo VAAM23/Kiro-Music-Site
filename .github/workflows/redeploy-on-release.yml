@@ -1,0 +1,29 @@
+name: Redeploy landing on public release
+on:
+  release:
+    types: [published, edited]
+  workflow_dispatch:
+
+jobs:
+  redeploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Redeploy only after public installers are ready
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$VERCEL_DEPLOY_HOOK" ]; then
+            echo 'Add VERCEL_DEPLOY_HOOK to repository Actions secrets.' >&2
+            exit 1
+          fi
+          count=$(gh api "repos/$GH_REPO/releases/latest" --jq '[.assets[] | select(.name | test("\\.(exe|msi|dmg|AppImage|deb|rpm)$"; "i"))] | length')
+          if [ "$count" -eq 0 ]; then
+            echo 'No public installers on latest release yet; wait for the upload and release-notes edit.'
+            exit 0
+          fi
+          curl --fail --silent --show-error --retry 3 --request POST "$VERCEL_DEPLOY_HOOK" >/dev/null
+          echo 'Vercel redeploy requested after public installer release.'

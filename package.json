@@ -1,0 +1,27 @@
+{
+  "name": "kiro-music-site",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12 <24"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "test": "node --test",
+    "format:check": "prettier --plugin prettier-plugin-astro --check src scripts astro.config.mjs"
+  },
+  "dependencies": {
+    "astro": "7.3.5"
+  },
+  "overrides": {
+    "micromark-util-types": "2.0.2"
+  },
+  "devDependencies": {
+    "axe-core": "4.13.0",
+    "playwright-core": "1.63.0",
+    "prettier": "3.9.9",
+    "prettier-plugin-astro": "1.1.0"
+  }
+}
