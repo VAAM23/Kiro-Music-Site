@@ -468,8 +468,13 @@ h1::after {
   justify-content: center;
   padding: 30px 35px 0;
 }
-.gallery-image img {
+.gallery-image picture {
   width: min(100%, 220px);
+  flex: 0 1 auto;
+  min-width: 0;
+}
+.gallery-image img {
+  width: 100%;
   border-radius: 12px;
   box-shadow: 0 22px 55px #0009;
 }
@@ -478,11 +483,6 @@ h1::after {
   color: #e5ebfa;
   font-size: 15px;
   font-weight: 600;
-}
-.preview-note {
-  font-size: 13px;
-  color: #adc2df;
-  margin: 22px 0 0;
 }
 .updates {
   display: grid;
@@ -638,7 +638,7 @@ h1::after {
     height: 310px;
     padding: 25px 15px 0;
   }
-  .gallery-image img {
+  .gallery-image picture {
     width: 170px;
   }
   .updates {
@@ -724,9 +724,8 @@ h1::after {
     height: 225px;
     padding: 14px 4px 0;
   }
-  .gallery-image img {
+  .gallery-image picture {
     width: 125px;
-    max-width: none;
   }
   .gallery-grid figcaption {
     font-size: 12px;
@@ -750,7 +749,7 @@ h1::after {
   .gallery-image {
     height: 180px;
   }
-  .gallery-image img {
+  .gallery-image picture {
     width: 100px;
   }
   .gallery-grid figcaption {

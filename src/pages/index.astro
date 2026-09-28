@@ -27,25 +27,28 @@ const platforms = [
 const firstPlatform = platforms.find(({ key }) => release?.downloads[key]);
 const gallery = [
   {
-    src: "/previews/player.svg",
+    file: "search",
     en: "Find a track and press play",
     es: "Busca una canción y dale play",
-    alt: "Illustrated preview of the player and search screen",
-    altEs: "Vista ilustrativa del reproductor y pantalla de búsqueda",
+    alt: "Kiro-Music screenshot showing a search for Daft Punk with playback controls and song results",
+    altEs:
+      "Captura de Kiro-Music con una búsqueda de Daft Punk, controles de reproducción y resultados",
   },
   {
-    src: "/previews/lyrics.svg",
+    file: "lyrics",
     en: "Stay with every line",
     es: "Sigue cada verso",
-    alt: "Illustrated preview of synchronized lyrics",
-    altEs: "Vista ilustrativa de las letras sincronizadas",
+    alt: "Kiro-Music screenshot with synchronized lyrics highlighting the current line while a song plays",
+    altEs:
+      "Captura de Kiro-Music con letras sincronizadas y el verso actual resaltado",
   },
   {
-    src: "/previews/playlists.svg",
+    file: "playlists",
     en: "Keep your favorites close",
     es: "Ten tus favoritos a mano",
-    alt: "Illustrated preview of the playlists screen",
-    altEs: "Vista ilustrativa de la pantalla de playlists",
+    alt: "Kiro-Music screenshot showing the After dark playlist and its three saved songs",
+    altEs:
+      "Captura de Kiro-Music con la playlist After dark y sus tres canciones guardadas",
   },
 ];
 ---
@@ -359,16 +362,22 @@ const gallery = [
             {gallery.map((image) => (
               <figure>
                 <div class="gallery-image">
-                  <img
-                    src={image.src}
-                    alt={image.alt}
-                    data-alt-en={image.alt}
-                    data-alt-es={image.altEs}
-                    width="460"
-                    height="720"
-                    loading="lazy"
-                    decoding="async"
-                  />
+                  <picture>
+                    <source
+                      srcset={`/screenshots/${image.file}.webp`}
+                      type="image/webp"
+                    />
+                    <img
+                      src={`/screenshots/${image.file}.png`}
+                      alt={image.alt}
+                      data-alt-en={image.alt}
+                      data-alt-es={image.altEs}
+                      width="460"
+                      height="720"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </picture>
                 </div>
                 <figcaption>
                   <Localized en={image.en} es={image.es} />
@@ -376,12 +385,6 @@ const gallery = [
               </figure>
             ))}
           </div>
-          <p class="preview-note">
-            <Localized
-              en="Illustrative interface previews based on the app. Actual screenshots will be added before launch."
-              es="Vistas ilustrativas basadas en la app. Añadiremos capturas reales antes del lanzamiento."
-            />
-          </p>
         </section>
 
         <section
