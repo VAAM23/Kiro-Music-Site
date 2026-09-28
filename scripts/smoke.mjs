@@ -46,6 +46,8 @@ try {
       await page.locator("#lang-switch").getAttribute("aria-pressed"),
       "true",
     );
+    assert.equal(await page.locator("#gallery picture").count(), 3);
+    assert.equal(await page.locator("#gallery .preview-note").count(), 0);
     await page.locator("#gallery").scrollIntoViewIfNeeded();
     await page.locator("#gallery img").first().waitFor({ state: "visible" });
     await page.waitForFunction(() =>
@@ -53,6 +55,30 @@ try {
         (image) => image.complete && image.naturalWidth > 0,
       ),
     );
+    const screenshots = await page
+      .locator("#gallery img")
+      .evaluateAll((images) =>
+        images.map((image) => ({
+          src: image.currentSrc,
+          fallback: image.getAttribute("src"),
+          alt: image.alt,
+          width: image.width,
+          intrinsicWidth: image.getAttribute("width"),
+          intrinsicHeight: image.getAttribute("height"),
+          loading: image.loading,
+        })),
+      );
+    for (const image of screenshots) {
+      assert.match(
+        image.src,
+        /\/screenshots\/(search|lyrics|playlists)\.webp$/,
+      );
+      assert.match(image.fallback, /\.png$/);
+      assert.match(image.alt, /^Captura de Kiro-Music/);
+      assert.equal(image.intrinsicWidth, "460");
+      assert.equal(image.intrinsicHeight, "720");
+      assert.equal(image.loading, "lazy");
+    }
     await page.addScriptTag({
       path: resolve("node_modules/axe-core/axe.min.js"),
     });

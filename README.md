@@ -24,9 +24,9 @@ npm run build
 
 The release version, notes and platform URLs come **only** from `https://api.github.com/repos/VAAM23/Kiro-Music-Site/releases/latest` **at build time**. Publishing a release without a Vercel rebuild does not update an already deployed static page. The download button detects Windows/macOS/Linux in the browser; both Mac architectures have explicit links (a browser cannot reliably detect the CPU). Supported formats: `.exe` / `.msi` (Windows), `.dmg` (`aarch64` Apple Silicon or `x64` Intel), `.AppImage` / `.deb` / `.rpm` (Linux). Updater-only `.sig`, `.tar.gz` and `latest.json` are never offered as installers. If the API fails or no installer exists, downloads are disabled. **Never delete version tags/releases** in this repository: the app's Tauri updater relies on their signed `latest.json` and assets.
 
-## Replace illustrated previews
+## Gallery screenshots
 
-`public/previews/*.svg` are illustrative mockups based on the current app UI, **not actual screenshots**. Before announcing the site, replace them with real captures from the running app (and update the paths and copy in `src/pages/index.astro`). `scripts/generate-previews.mjs` regenerates the placeholders. The Kiro dog artwork is copied from the app's `assets/kiro-logo.png`.
+`public/screenshots/*.png` are captures of the running Kiro-Music desktop app (Search, Lyrics, Playlists), with optimized `.webp` versions served first and PNG fallbacks. The animated hero remains a stylized app mockup. The brand artwork is copied from the app's `assets/kiro-logo.png`.
 
 ## Check the page
 
